@@ -51,7 +51,6 @@
 
 static const data_t m_null              = { (unsigned char *)"\x05\x00", 2, 2 };
 static const data_t m_no_such_object    = { (unsigned char *)"\x80\x00", 2, 2 };
-static const data_t m_no_such_instance  = { (unsigned char *)"\x81\x00", 2, 2 };
 static const data_t m_end_of_mib_view   = { (unsigned char *)"\x82\x00", 2, 2 };
 
 
@@ -740,8 +739,7 @@ static int encode_snmp_response(request_t *request, response_t *response, client
 
 static int handle_snmp_get(request_t *request, response_t *response, client_t *UNUSED(client))
 {
-	size_t i, pos;
-	value_t *value;
+	size_t i;
 	const char *msg = "Failed handling SNMP GET: value list overflow\n";
 
 	/*
@@ -750,26 +748,7 @@ static int handle_snmp_get(request_t *request, response_t *response, client_t *U
 	 * subid of the requested one (table cell of table column)!
 	 */
 	for (i = 0; i < request->oid_list_length; i++) {
-		pos = 0;
-		value = mib_find(&request->oid_list[i], &pos);
-		if (!value)
-			SNMP_GET_ERROR(response, request, i, SNMP_STATUS_NO_SUCH_NAME, m_no_such_object, msg);
-
-		if (pos >= g_mib_length)
-			SNMP_GET_ERROR(response, request, i, SNMP_STATUS_NO_SUCH_NAME, m_no_such_object, msg);
-
-		if (value->oid.subid_list_length == (request->oid_list[i].subid_list_length + 1))
-			SNMP_GET_ERROR(response, request, i, SNMP_STATUS_NO_SUCH_NAME, m_no_such_instance, msg);
-
-		if (value->oid.subid_list_length != request->oid_list[i].subid_list_length)
-			SNMP_GET_ERROR(response, request, i, SNMP_STATUS_NO_SUCH_NAME, m_no_such_object, msg);
-
-		if (response->value_list_length < MAX_NR_VALUES) {
-			memcpy(&response->value_list[response->value_list_length], value, sizeof(*value));
-			response->value_list_length++;
-			continue;
-		}
-
+		SNMP_GET_ERROR(response, request, i, SNMP_STATUS_NO_SUCH_NAME, m_no_such_object, msg);
 		logit(LOG_ERR, 0, "%s", msg);
 		return -1;
 	}
@@ -780,7 +759,6 @@ static int handle_snmp_get(request_t *request, response_t *response, client_t *U
 static int handle_snmp_getnext(request_t *request, response_t *response, client_t *UNUSED(client))
 {
 	size_t i;
-	value_t *value;
 	const char *msg = "Failed handling SNMP GETNEXT: value list overflow\n";
 
 	/*
@@ -789,15 +767,7 @@ static int handle_snmp_getnext(request_t *request, response_t *response, client_
 	 * subid of the requested one (table cell of table column)!
 	 */
 	for (i = 0; i < request->oid_list_length; i++) {
-		value = mib_findnext(&request->oid_list[i]);
-		if (!value)
-			SNMP_GET_ERROR(response, request, i, SNMP_STATUS_NO_SUCH_NAME, m_end_of_mib_view, msg);
-
-		if (response->value_list_length < MAX_NR_VALUES) {
-			memcpy(&response->value_list[response->value_list_length], value, sizeof(*value));
-			response->value_list_length++;
-			continue;
-		}
+		SNMP_GET_ERROR(response, request, i, SNMP_STATUS_NO_SUCH_NAME, m_end_of_mib_view, msg);
 
 		logit(LOG_ERR, 0, "%s", msg);
 		return -1;
@@ -814,9 +784,8 @@ static int handle_snmp_set(request_t *request, response_t *response, client_t *U
 
 static int handle_snmp_getbulk(request_t *request, response_t *response, client_t *UNUSED(client))
 {
-	size_t i, j;
+	size_t i;
 	oid_t oid_list[MAX_NR_OIDS];
-	value_t *value;
 	const char *msg = "Failed handling SNMP GETBULK: value list overflow\n";
 
 	/* Make a local copy of the OID list since we are going to modify it */
@@ -827,15 +796,7 @@ static int handle_snmp_getbulk(request_t *request, response_t *response, client_
 		if (i >= request->non_repeaters)
 			break;
 
-		value = mib_findnext(&oid_list[i]);
-		if (!value)
-			SNMP_GET_ERROR(response, request, i, SNMP_STATUS_NO_SUCH_NAME, m_end_of_mib_view, msg);
-
-		if (response->value_list_length < MAX_NR_VALUES) {
-			memcpy(&response->value_list[response->value_list_length], value, sizeof(*value));
-			response->value_list_length++;
-			continue;
-		}
+		SNMP_GET_ERROR(response, request, i, SNMP_STATUS_NO_SUCH_NAME, m_end_of_mib_view, msg);
 
 		logit(LOG_ERR, 0, "%s", msg);
 		return -1;
@@ -851,28 +812,11 @@ static int handle_snmp_getbulk(request_t *request, response_t *response, client_
 	 * - other than with getnext, the last variable in the MIB is named if
 	 *   the variable queried is not after the end of the MIB
 	 */
-	for (j = 0; j < request->max_repetitions; j++) {
-		int found_repeater = 0;
+	for (i = request->non_repeaters; i < request->oid_list_length; i++) {
+		SNMP_GET_ERROR(response, request, i, SNMP_STATUS_NO_SUCH_NAME, m_end_of_mib_view, msg);
 
-		for (i = request->non_repeaters; i < request->oid_list_length; i++) {
-			value = mib_findnext(&oid_list[i]);
-			if (!value)
-				SNMP_GET_ERROR(response, request, i, SNMP_STATUS_NO_SUCH_NAME, m_end_of_mib_view, msg);
-
-			if (response->value_list_length < MAX_NR_VALUES) {
-				memcpy(&response->value_list[response->value_list_length], value, sizeof(*value));
-				response->value_list_length++;
-				memcpy(&oid_list[i], &value->oid, sizeof(value->oid));
-				found_repeater++;
-				continue;
-			}
-
-			logit(LOG_ERR, 0, "%s", msg);
-			return -1;
-		}
-
-		if (found_repeater == 0)
-			break;
+		logit(LOG_ERR, 0, "%s", msg);
+		return -1;
 	}
 
 	return 0;
@@ -951,10 +895,10 @@ int snmp(client_t *client)
 			logit(LOG_INFO, 0, "remote used community: '%s'", request.community);
 		}
 
-		response.error_status = SNMP_STATUS_RESOURCE_UNAVAILABLE;
+/*		response.error_status = SNMP_STATUS_RESOURCE_UNAVAILABLE;
 		response.error_index = 0;
 		goto done;
-/*
+
 		if (strcmp(g_community, request.community)) {
 			response.error_status = (request.version == SNMP_VERSION_2C) ? SNMP_STATUS_NO_ACCESS : SNMP_STATUS_GEN_ERR;
 			response.error_index = 0;
