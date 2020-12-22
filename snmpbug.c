@@ -97,9 +97,6 @@ static void handle_udp_client(void)
 	g_udp_client.port = sockaddr.my_sin_port;
 	g_udp_client.size = rv;
 	g_udp_client.outgoing = 0;
-#ifdef DEBUG
-	dump_packet(&g_udp_client);
-#endif
 
 	/* Call the protocol handler which will prepare the response packet */
 	inet_ntop(my_af_inet, &sockaddr.my_sin_addr, straddr, sizeof(straddr));
@@ -121,10 +118,6 @@ static void handle_udp_client(void)
 		logit(LOG_WARNING, errno, "%s %s:%d", snd_msg, straddr, sockaddr.my_sin_port);
 	else if ((size_t)rv != g_udp_client.size)
 		logit(LOG_WARNING, 0, "%s %s:%d: only %zd of %zu bytes sent", snd_msg, straddr, sockaddr.my_sin_port, rv, g_udp_client.size);
-
-#ifdef DEBUG
-	dump_packet(&g_udp_client);
-#endif
 }
 
 static void handle_tcp_connect(void)
@@ -212,10 +205,6 @@ static void handle_tcp_client_write(client_t *client)
 		return;
 	}
 
-#ifdef DEBUG
-	dump_packet(client);
-#endif
-
 	/* Put the client into listening mode again */
 	client->size = 0;
 	client->outgoing = 0;
@@ -261,10 +250,6 @@ static void handle_tcp_client_read(client_t *client)
 		return;
 	}
 	client->outgoing = 0;
-
-#ifdef DEBUG
-	dump_packet(client);
-#endif
 
 	/* Call the protocol handler which will prepare the response packet */
 	if (snmp(client) == -1) {
@@ -430,13 +415,6 @@ int main(int argc, char *argv[])
 		tv_sleep.tv_usec = (g_timeout % 100) * 10000;
 	}
 
-	/* Build the MIB and execute the first MIB update to get actual values */
-/*
-	if (mib_build() == -1)
-		exit(EXIT_SYSCALL);
-	if (mib_update(1) == -1)
-		exit(EXIT_SYSCALL);
- */
 	/* Prevent TERM and HUP signals from interrupting system calls */
 	sig.sa_handler = handle_signal;
 	sigemptyset (&sig.sa_mask);
@@ -444,10 +422,6 @@ int main(int argc, char *argv[])
 	sigaction(SIGTERM, &sig, NULL);
 	sigaction(SIGINT, &sig, NULL);
 	sigaction(SIGHUP, &sig, NULL);
-
-#ifdef DEBUG
-/*	dump_mib(g_mib, g_mib_length); */
-#endif
 
 	/* Open the server's UDP port and prepare it for listening */
 	g_udp_sockfd = socket((g_family == AF_INET) ? PF_INET : PF_INET6, SOCK_DGRAM, 0);
@@ -600,25 +574,13 @@ int main(int argc, char *argv[])
 		/* Determine whether to update the MIB and the next ticks to sleep */
 		ticks = ticks_since(&tv_last, &tv_now);
 		if (ticks < 0 || ticks >= g_timeout) {
-			logit(LOG_DEBUG, 0, "updating the MIB (full)");
-/*			if (mib_update(1) == -1)
-				exit(EXIT_SYSCALL);
- */
 			memcpy(&tv_last, &tv_now, sizeof(tv_now));
 			tv_sleep.tv_sec = g_timeout / 100;
 			tv_sleep.tv_usec = (g_timeout % 100) * 10000;
 		} else {
-			logit(LOG_DEBUG, 0, "updating the MIB (partial)");
-/*			if (mib_update(0) == -1)
-				exit(EXIT_SYSCALL);
-*/
 			tv_sleep.tv_sec = (g_timeout - ticks) / 100;
 			tv_sleep.tv_usec = ((g_timeout - ticks) % 100) * 10000;
 		}
-
-#ifdef DEBUG
-/*		dump_mib(g_mib, g_mib_length); */
-#endif
 
 		/* Handle UDP packets, TCP packets and TCP connection connects */
 		if (FD_ISSET(g_udp_sockfd, &rfds))
