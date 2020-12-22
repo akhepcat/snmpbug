@@ -1,6 +1,5 @@
 
-This code is just a modified version of the mini-snmpd code found at
-https://github.com/troglobit/mini-snmpd.git
+This code is a heavily edited version of the mini-snmpd code found at https://github.com/troglobit/mini-snmpd.git
 
 all chages were made to eliminate user-facing variables that are mib-centric.
 
@@ -10,7 +9,7 @@ It's the 'canary-in-the-coalmine'  for snmp attacks.
 
 Currently, 'snmpbug' simply logs the -v1 and -v2c  community-string to stdout, as well as the soure IPv4/IPv6 address.
 
-Instead of returning data, it returns a "Resources unavailable" error.
+Instead of returning data, it always returns an "END of MIB" (No More Variables) result.
 
 -----------------------
 
