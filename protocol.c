@@ -944,6 +944,12 @@ int snmp(client_t *client)
 					break;
 			}
 			inet_ntop(my_af_inet, &client_addr, straddr, sizeof(straddr));
+			if (strncmp(straddr,"::ffff:",7)==0) {	/* ipv4-in-ipv6 representation */
+				for(i=0; i < (strlen(straddr) - 7); i++) {
+					straddr[i] = straddr[(i+7)];  /* shift the IPv4 addr to the beginning of the string */
+				}
+				straddr[i]='\0';  /* set the new termination point */
+			}
 			logit(LOG_INFO, 0, "host %s used community: '%s'", straddr, request.community);
 			free(buf);
 		} else {
