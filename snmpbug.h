@@ -219,9 +219,6 @@ extern size_t    g_tcp_client_list_length;
 extern int       g_udp_sockfd;
 extern int       g_tcp_sockfd;
 
-extern value_t   g_mib[MAX_NR_VALUES];
-extern size_t    g_mib_length;
-
 /*
  * Functions
  */
@@ -238,10 +235,6 @@ int	logit(int priority, int syserr, const char *fmt, ...);
 
 int	snmp_packet_complete(const client_t *client);
 int 	snmp(client_t *client);
-
-int 	mib_build(void);
-value_t *mib_find(const oid_t *oid, size_t *pos);
-value_t *mib_findnext(const oid_t *oid);
 
 #endif /* SNMPBUG_H_ */
 
