@@ -784,11 +784,7 @@ static int handle_snmp_set(request_t *request, response_t *response, client_t *U
 static int handle_snmp_getbulk(request_t *request, response_t *response, client_t *UNUSED(client))
 {
 	size_t i;
-	oid_t oid_list[MAX_NR_OIDS];
 	const char *msg = "Failed handling SNMP GETBULK: value list overflow\n";
-
-	/* Make a local copy of the OID list since we are going to modify it */
-	memcpy(oid_list, request->oid_list, sizeof(request->oid_list));
 
 	/* The non-repeaters are handled like with the GETNEXT request */
 	for (i = 0; i < request->oid_list_length; i++) {
@@ -863,8 +859,7 @@ int snmp(client_t *client)
 		return -1;
 
 	/*
-	 * If we are using SNMP v2c or require authentication, check the community
-	 * string for length and validity.
+	 * check the community string for length and validity.
 	 */
 
 
@@ -894,16 +889,6 @@ int snmp(client_t *client)
 			logit(LOG_INFO, 0, "remote used community: '%s'", request.community);
 		}
 
-/*		response.error_status = SNMP_STATUS_RESOURCE_UNAVAILABLE;
-		response.error_index = 0;
-		goto done;
-
-		if (strcmp(g_community, request.community)) {
-			response.error_status = (request.version == SNMP_VERSION_2C) ? SNMP_STATUS_NO_ACCESS : SNMP_STATUS_GEN_ERR;
-			response.error_index = 0;
-			goto done;
-		}
- */		
 	} else if (g_auth) {
 		response.error_status = SNMP_STATUS_GEN_ERR;
 		response.error_index = 0;
