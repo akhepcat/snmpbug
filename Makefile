@@ -7,7 +7,9 @@ CFLAGS = -W -Wall -Wextra -std=gnu99 -g -O2
 
 $(NAME):: $(OBJ)
 	cc -o $(NAME) $(OBJ) $(LIBS)
-#	strip $(NAME)
+
+prod::	$(NAME) clean
+	strip $(NAME)
 
 clean::
 	@echo "cleaning intermediate files..."
