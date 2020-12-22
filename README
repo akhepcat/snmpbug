@@ -27,3 +27,9 @@ Bug report address: https://github.com/akhepcat/snmpbug/issues
 Project homepage: https://github.com/akhepcat/snmpbug
 
 ---------------------
+
+TODO:
+	* keep stripping out unused code
+	** no need for system monitoring
+	** no need for MIB parsing/updating/etc
+	** simplify, simplify, simplify!
