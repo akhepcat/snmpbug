@@ -31,7 +31,9 @@ Project homepage: https://github.com/akhepcat/snmpbug
 
 TODO:
 	* keep stripping out unused code
+	** simplify, simplify, simplify!
+
+DONE:
+	* Return exactly one record of the type requested, with null data - instead of an error.
 	** no need for system monitoring
 	** no need for MIB parsing/updating/etc
-	** simplify, simplify, simplify!
-	* Return exactly one record of the type requested, with null data - instead of an error.
