@@ -23,7 +23,7 @@ Usage: snmpbug [options]
   -u, --drop-privs USER  Drop privileges after opening sockets to USER, default: no
   -v, --version          Show program version and exit
 
-Bug report address: 
-Project homepage: 
+Bug report address: https://github.com/akhepcat/snmpbug/issues
+Project homepage: https://github.com/akhepcat/snmpbug
 
 ---------------------
