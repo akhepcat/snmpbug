@@ -54,8 +54,5 @@ client_t  g_udp_client;
 client_t *g_tcp_client_list[MAX_NR_CLIENTS];
 size_t    g_tcp_client_list_length;
 
-value_t   g_mib[MAX_NR_VALUES];
-size_t    g_mib_length;
-
 /* vim: ts=4 sts=4 sw=4 nowrap
  */
