@@ -564,7 +564,6 @@ static int encode_snmp_oid(unsigned char *buf, const oid_t *oid)
 
 	*buf++ = BER_TYPE_OID;
 	if (len > 0xFFFF) {
-		logit(LOG_ERR, 0, "could not encode '%s': OID overflow", oid_ntoa(oid));
 		return -1;
 	}
 
@@ -616,7 +615,7 @@ static int encode_snmp_varbind(unsigned char *buf, size_t *pos, const value_t *v
 	/* The value of the variable binding (NULL for error responses) */
 	len = value->data.encoded_length;
 	if (*pos < len)
-		return log_encoding_error(oid_ntoa(&value->oid), "DATA overflow");
+		return log_encoding_error("data", "DATA overflow");
 
 	memcpy(&buf[*pos - len], value->data.buffer, len);
 	*pos = *pos - len;
@@ -624,7 +623,7 @@ static int encode_snmp_varbind(unsigned char *buf, size_t *pos, const value_t *v
 	/* The OID of the variable binding */
 	len = value->oid.encoded_length;
 	if (*pos < len)
-		return log_encoding_error(oid_ntoa(&value->oid), "OID overflow");
+		return log_encoding_error("data", "OID overflow");
 
 	encode_snmp_oid(&buf[*pos - len], &value->oid);
 	*pos = *pos - len;
@@ -632,7 +631,7 @@ static int encode_snmp_varbind(unsigned char *buf, size_t *pos, const value_t *v
 	/* The sequence header (type and length) of the variable binding */
 	len = get_hdrlen(value->oid.encoded_length + value->data.encoded_length);
 	if (*pos < len)
-		return log_encoding_error(oid_ntoa(&value->oid), "VARBIND overflow");
+		return log_encoding_error("data", "VARBIND overflow");
 
 	encode_snmp_sequence_header(&buf[*pos - len], value->oid.encoded_length + value->data.encoded_length, BER_TYPE_SEQUENCE);
 	*pos = *pos - len;
