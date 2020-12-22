@@ -16,7 +16,6 @@
 #ifndef SNMPBUG_H_
 #define SNMPBUG_H_
 
-#include "config.h"
 #include <errno.h>
 #include <stdint.h>
 #include <syslog.h>
@@ -24,6 +23,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include "config.h"
 #include "compat.h"
 
 /*
@@ -181,99 +181,6 @@ typedef struct response_s {
 	size_t  value_list_length;
 } response_t;
 
-typedef struct loadinfo_s {
-	unsigned int avg[3];
-} loadinfo_t;
-
-typedef struct meminfo_s {
-	long long total;
-	long long free;
-	long long shared;
-	long long buffers;
-	long long cached;
-} meminfo_t;
-
-typedef struct cpuinfo_s {
-	long long user;
-	long long nice;
-	long long system;
-	long long idle;
-	long long irqs;
-	long long cntxts;
-} cpuinfo_t;
-
-typedef struct diskinfo_s {
-	unsigned int total[MAX_NR_DISKS];
-	unsigned int free[MAX_NR_DISKS];
-	unsigned int used[MAX_NR_DISKS];
-	unsigned int blocks_used_percent[MAX_NR_DISKS];
-	unsigned int inodes_used_percent[MAX_NR_DISKS];
-} diskinfo_t;
-
-typedef struct netinfo_s {
-	unsigned int in_addr[MAX_NR_INTERFACES];
-	unsigned int in_mask[MAX_NR_INTERFACES];
-	unsigned int in_bcaddr[MAX_NR_INTERFACES];
-	unsigned int in_bcent[MAX_NR_INTERFACES];
-	unsigned int if_type[MAX_NR_INTERFACES];
-	unsigned int if_mtu[MAX_NR_INTERFACES];
-	unsigned int if_speed[MAX_NR_INTERFACES];
-	unsigned int ifindex[MAX_NR_INTERFACES];
-	unsigned int status[MAX_NR_INTERFACES];
-	unsigned int lastchange[MAX_NR_INTERFACES];
-	unsigned int stats[MAX_NR_INTERFACES];		/* Sentinel for backends */
-	long long rx_bytes[MAX_NR_INTERFACES];
-	long long rx_mc_packets[MAX_NR_INTERFACES];
-	long long rx_bc_packets[MAX_NR_INTERFACES];
-	long long rx_packets[MAX_NR_INTERFACES];
-	long long rx_errors[MAX_NR_INTERFACES];
-	long long rx_drops[MAX_NR_INTERFACES];
-	long long tx_bytes[MAX_NR_INTERFACES];
-	long long tx_mc_packets[MAX_NR_INTERFACES];
-	long long tx_bc_packets[MAX_NR_INTERFACES];
-	long long tx_packets[MAX_NR_INTERFACES];
-	long long tx_errors[MAX_NR_INTERFACES];
-	long long tx_drops[MAX_NR_INTERFACES];
-	char mac_addr[MAX_NR_INTERFACES][6];
-} netinfo_t;
-
- 
-typedef struct ipinfo_s {
-	long long ipForwarding;
-	long long ipDefaultTTL;
-	long long ipReasmTimeout;
-} ipinfo_t;
-
-typedef struct tcpinfo_s {
-	long long tcpRtoAlgorithm;
-	long long tcpRtoMin;
-	long long tcpRtoMax;
-	long long tcpMaxConn;
-	long long tcpActiveOpens;
-	long long tcpPassiveOpens;
-	long long tcpAttemptFails;
-	long long tcpEstabResets;
-	long long tcpCurrEstab;
-	long long tcpInSegs;
-	long long tcpOutSegs;
-	long long tcpRetransSegs;
-	long long tcpInErrs;
-	long long tcpOutRsts;
-} tcpinfo_t;
-
-typedef struct udpinfo_s {
-	long long udpInDatagrams;
-	long long udpNoPorts;
-	long long udpInErrors;
-	long long udpOutDatagrams;
-} udpinfo_t;
-
-#ifdef CONFIG_ENABLE_DEMO
-typedef struct demoinfo_s {
-	unsigned int random_value_1;
-	unsigned int random_value_2;
-} demoinfo_t;
-#endif
 
 
 /*
@@ -319,47 +226,22 @@ extern size_t    g_mib_length;
  * Functions
  */
 
-void         dump_packet   (const client_t   *client);
-void         dump_mib      (const value_t    *value, int size);
-void         dump_response (const response_t *response);
+char	*oid_ntoa(const oid_t *oid);
+oid_t	*oid_aton(const char  *str);
+int	oid_cmp(const oid_t *oid1, const oid_t *oid2);
+int	split(const char *str, char *delim, char **list, int max_list_length);
+client_t *find_oldest_client(void);
+void	*allocate(size_t len);
 
-char        *oid_ntoa (const oid_t *oid);
-oid_t       *oid_aton (const char  *str);
-int          oid_cmp  (const oid_t *oid1, const oid_t *oid2);
+int	ticks_since (const struct timeval *tv_last, struct timeval *tv_now);
+int	logit(int priority, int syserr, const char *fmt, ...);
 
-int          split(const char *str, char *delim, char **list, int max_list_length);
+int	snmp_packet_complete(const client_t *client);
+int 	snmp(client_t *client);
 
-client_t    *find_oldest_client(void);
-
-void        *allocate    (size_t len);
-
-int          ticks_since (const struct timeval *tv_last, struct timeval *tv_now);
-
-unsigned int get_process_uptime (void);
-unsigned int get_system_uptime  (void);
-
-void         get_loadinfo       (loadinfo_t *loadinfo);
-void         get_meminfo        (meminfo_t *meminfo);
-void         get_cpuinfo        (cpuinfo_t *cpuinfo);
-void         get_ipinfo         (ipinfo_t *ipinfo);
-void         get_tcpinfo        (tcpinfo_t *tcpinfo);
-void         get_udpinfo        (udpinfo_t *udpinfo);
-void         get_diskinfo       (diskinfo_t *diskinfo);
-void         get_netinfo        (netinfo_t *netinfo);
-#ifdef CONFIG_ENABLE_DEMO
-void         get_demoinfo       (demoinfo_t *demoinfo);
-#endif
-int          logit              (int priority, int syserr, const char *fmt, ...);
-
-int snmp_packet_complete   (const client_t *client);
-int snmp                   (      client_t *client);
-int snmp_element_as_string (const data_t *data, char *buffer, size_t size);
-
-int mib_build    (void);
-int mib_update   (int full);
-
-value_t *mib_find     (const oid_t *oid, size_t *pos);
-value_t *mib_findnext (const oid_t *oid);
+int 	mib_build(void);
+value_t *mib_find(const oid_t *oid, size_t *pos);
+value_t *mib_findnext(const oid_t *oid);
 
 #endif /* SNMPBUG_H_ */
 
