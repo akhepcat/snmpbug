@@ -92,7 +92,7 @@
 #define PACKAGE "snmpbug"
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT ""
+#define PACKAGE_BUGREPORT "https://github.com/akhepcat/snmpbug/issues"
 
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "snmpbug"
@@ -104,7 +104,7 @@
 #define PACKAGE_TARNAME "snmpbug"
 
 /* Define to the home page for this package. */
-#define PACKAGE_URL ""
+#define PACKAGE_URL "https://github.com/akhepcat/snmpbug"
 
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "1.1"
