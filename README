@@ -4,12 +4,13 @@ https://github.com/troglobit/mini-snmpd.git
 
 all chages were made to eliminate user-facing variables that are mib-centric.
 
-This  'snmpbug'  version simply logs the -v1 and -v2c  community-string to stdout
-as well as the IPv4/IPv6 address.
-
 It also fixes the 'drop privs' function to correctly set the gid based on the provided users's default group id; not by name
 
 It's the 'canary-in-the-coalmine'  for snmp attacks.
+
+Currently, 'snmpbug' simply logs the -v1 and -v2c  community-string to stdout, as well as the soure IPv4/IPv6 address.
+
+Instead of returning data, it returns a "Resources unavailable" error.
 
 -----------------------
 
@@ -33,3 +34,4 @@ TODO:
 	** no need for system monitoring
 	** no need for MIB parsing/updating/etc
 	** simplify, simplify, simplify!
+	* Return exactly one record of the type requested, with null data - instead of an error.
