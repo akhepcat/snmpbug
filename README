@@ -1,0 +1,29 @@
+
+This code is just a modified version of the mini-snmpd code found at
+https://github.com/troglobit/mini-snmpd.git
+
+all chages were made to eliminate user-facing variables that are mib-centric.
+
+This  'snmpbug'  version simply logs the -v1 and -v2c  community-string to stdout
+as well as the IPv4/IPv6 address.
+
+It also fixes the 'drop privs' function to correctly set the gid based on the provided users's default group id; not by name
+
+It's the 'canary-in-the-coalmine'  for snmp attacks.
+
+-----------------------
+
+Usage: snmpbug [options]
+
+  -h, --help             This help text
+  -i, --interfaces IFACE Network interfaces to monitor, default: none
+  -I, --listen IFACE     Network interface to listen, default: all
+  -p, --udp-port PORT    UDP port to bind to, default: 161
+  -P, --tcp-port PORT    TCP port to bind to, default is equal to udp port
+  -u, --drop-privs USER  Drop privileges after opening sockets to USER, default: no
+  -v, --version          Show program version and exit
+
+Bug report address: 
+Project homepage: 
+
+---------------------
