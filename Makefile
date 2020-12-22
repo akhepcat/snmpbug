@@ -1,13 +1,13 @@
 #!/bin/bash
 
 NAME = snmpbug
-OBJ = $(NAME).o linux.o mib.o globals.o protocol.o utils.o
+OBJ = $(NAME).o mib.o globals.o protocol.o utils.o
 LIBS = 
 CFLAGS = -W -Wall -Wextra -std=gnu99 -g -O2
 
 $(NAME):: $(OBJ)
 	cc -o $(NAME) $(OBJ) $(LIBS)
-	strip $(NAME)
+#	strip $(NAME)
 
 clean::
 	@echo "cleaning intermediate files..."
