@@ -659,11 +659,6 @@ static int encode_snmp_response(request_t *request, response_t *response, client
 		response->value_list_length = request->oid_list_length;
 	}
 
-	/* Dump the response for debugging purposes */
-#ifdef DEBUG
-	dump_response(response);
-#endif
-
 	/* To make the code more compact and save processing time, we are encoding the
 	 * data beginning at the last byte of the buffer backwards. Thus, the encoded
 	 * packet will not be positioned at offset 0..(size-1) of the client's packet
@@ -1008,71 +1003,6 @@ done:
 
 	return 0;
 }
-
-#ifdef DEBUG
-int snmp_element_as_string(const data_t *data, char *buf, size_t size)
-{
-	size_t i, len, pos = 0;
-	int type, val;
-	oid_t oid;
-	unsigned int cnt;
-
-	/* Decode the element type and length */
-	if (decode_len(data->buffer, data->encoded_length, &pos, &type, &len) == -1)
-		return -1;
-
-	/* Depending on type and length, decode the data */
-	switch (type) {
-	case BER_TYPE_INTEGER:
-		if (decode_int(data->buffer, data->encoded_length, &pos, len, &val) == -1)
-			return -1;
-		snprintf(buf, size, "%d", val);
-		break;
-
-	case BER_TYPE_OCTET_STRING:
-		snprintf(buf, size, "%.*s", (int)len, &data->buffer[pos]);
-		break;
-
-	case BER_TYPE_OID:
-		if (decode_oid(data->buffer, data->encoded_length, &pos, len, &oid) == -1)
-			return -1;
-		snprintf(buf, size, "%s", oid_ntoa(&oid));
-		break;
-
-	case BER_TYPE_COUNTER:
-	case BER_TYPE_GAUGE:
-	case BER_TYPE_TIME_TICKS:
-		if (decode_cnt(data->buffer, data->encoded_length, &pos, len, &cnt) == -1)
-			return -1;
-		snprintf(buf, size, "%u", cnt);
-		break;
-
-	case BER_TYPE_NO_SUCH_OBJECT:
-		snprintf(buf, size, "noSuchObject");
-		break;
-
-	case BER_TYPE_NO_SUCH_INSTANCE:
-		snprintf(buf, size, "noSuchInstance");
-		break;
-
-	case BER_TYPE_END_OF_MIB_VIEW:
-		snprintf(buf, size, "endOfMibView");
-		break;
-
-	default:
-		for (i = 0; i < len && i < ((size - 1) / 3); i++)
-			snprintf(buf + 3 * i, 4, "%02X ", data->buffer[pos + i]);
-
-		if (len > 0)
-			buf[len * 3 - 1] = '\0';
-		else
-			buf[0] = '\0';
-		break;
-	}
-
-	return 0;
-}
-#endif /* DEBUG */
 
 /* vim: ts=4 sts=4 sw=4 nowrap
  */

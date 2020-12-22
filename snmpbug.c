@@ -413,19 +413,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-#ifdef HAVE_LIBCONFUSE
-	if (!config) {
-		snprintf(path, sizeof(path), "%s/%s.conf", SYSCONFDIR, PACKAGE_NAME);
-		config = path;
-	} else if (access(config, F_OK)) {
-		logit(LOG_ERR, errno, "Failed reading config file '%s'", config);
-		return 1;
-	}
-
-	if (read_config(config))
-		return 1;
-#endif
-
 	g_community = "public";
 	g_vendor = VENDOR;
 	g_description = "";

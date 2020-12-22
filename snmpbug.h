@@ -330,19 +330,8 @@ int          oid_cmp  (const oid_t *oid1, const oid_t *oid2);
 int          split(const char *str, char *delim, char **list, int max_list_length);
 
 client_t    *find_oldest_client(void);
-int          find_ifname(char *ifname);
 
 void        *allocate    (size_t len);
-
-int          read_config (char *file);
-
-int          parse_file  (char *file, field_t fields[], size_t limit, size_t skip_prefix);
-int          read_file   (const char *filename, char *buffer, size_t size);
-
-unsigned int read_value  (const char *buffer, const char *prefix);
-void         read_values (const char *buffer, const char *prefix, unsigned int *values, int count);
-
-int          read_file_value(unsigned int *val, const char *fmt, ...);
 
 int          ticks_since (const struct timeval *tv_last, struct timeval *tv_now);
 
