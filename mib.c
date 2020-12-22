@@ -56,6 +56,7 @@ int in_cmp(const void *p1, const void *p2)
 	return (int)(a->addr - b->addr);
 }
 
+/*
 void sort_addr(netinfo_t *netinfo)
 {
 	size_t i;
@@ -68,6 +69,7 @@ void sort_addr(netinfo_t *netinfo)
 	qsort(sorted_interface_list, g_interface_list_length, sizeof(struct in_sort), in_cmp);
 }
 
+*/
 
 /* -----------------------------------------------------------------------------
  * Interface functions
