@@ -14,20 +14,12 @@
  * See COPYING for GPL licensing information.
  */
 
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <alloca.h>
-#include <limits.h>
-#include <syslog.h>
-#include <string.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <limits.h>
+#include <string.h>
 #include <stdarg.h>
-#include <ctype.h>
-#include <time.h>
-
+#include <sys/time.h>
+ 
 #include "snmpbug.h"
 
 void *allocate(size_t len)

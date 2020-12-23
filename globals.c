@@ -14,14 +14,8 @@
  * See COPYING for GPL licensing information.
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-
 #include "snmpbug.h"
-
+ 
 const struct in_addr inaddr_any = { INADDR_ANY };
 
 int       g_family  = AF_INET6;
@@ -33,9 +27,6 @@ volatile sig_atomic_t g_quit = 0;
 char     *g_prognm;
 char     *g_bind_to_device;
 char     *g_user;
-
-char     *g_disk_list[MAX_NR_DISKS] = { "/" };
-size_t    g_disk_list_length        = 1;
 
 char     *g_interface_list[MAX_NR_INTERFACES];
 size_t    g_interface_list_length;

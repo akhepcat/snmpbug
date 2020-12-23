@@ -16,27 +16,19 @@
 
 #define _GNU_SOURCE
 
-#include <string.h>
-#include <sys/param.h>		/* MIN()/MAX() */
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <netinet/in.h>
-#include <net/if.h>
-#include <arpa/inet.h>
+#include <stdio.h>
 #include <getopt.h>
 #include <signal.h>
-#include <unistd.h>
 #include <string.h>
-#define SYSLOG_NAMES		/* Expose syslog.h:prioritynames[] */
-#include <syslog.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <time.h>
 #include <pwd.h>
 #include <grp.h>
+#include <time.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <net/if.h>
+#include <arpa/inet.h>
 
+#define SYSLOG_NAMES		/* Expose syslog.h:prioritynames[] */
 #include "snmpbug.h"
 
 in_port_t g_udp_port=0;

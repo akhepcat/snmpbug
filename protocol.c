@@ -15,12 +15,9 @@
  * See COPYING for GPL licensing information.
  */
 
-#include <syslog.h>
-#include <string.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <errno.h>
-
+#include <string.h>
+#include <arpa/inet.h>
 #include "snmpbug.h"
 
 #define SNMP_VERSION_1_ERROR(resp, code, index) {			\

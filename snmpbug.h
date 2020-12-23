@@ -21,10 +21,8 @@
 #include <stdlib.h>
 #include <syslog.h>
 #include <signal.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
+
 #include "config.h"
 
 /*
@@ -194,9 +192,6 @@ extern volatile sig_atomic_t g_quit;
 extern char     *g_prognm;
 extern char     *g_bind_to_device;
 extern char     *g_user;
-
-extern char     *g_disk_list[MAX_NR_DISKS];
-extern size_t    g_disk_list_length;
 
 extern char     *g_interface_list[MAX_NR_INTERFACES];
 extern size_t    g_interface_list_length;
