@@ -283,27 +283,13 @@ static char *progname(char *arg0)
 
 int main(int argc, char *argv[])
 {
-	static const char short_options[] = "hi:p:P:u:v"
-#ifndef __FreeBSD__
-		"I:"
-#endif
-#ifdef CONFIG_ENABLE_IPV6
-		"46"
-#endif
-#ifdef HAVE_LIBCONFUSE
-		"f:"
-#endif
-		;
+	static const char short_options[] = "hi:p:P:u:vI:46";
 	static const struct option long_options[] = {
-#ifdef CONFIG_ENABLE_IPV6
 		{ "use-ipv4",    0, 0, '4' },
 		{ "use-ipv6",    0, 0, '6' },
-#endif
 		{ "help",        0, 0, 'h' },
 		{ "interfaces",  1, 0, 'i' },
-#ifndef __FreeBSD__
 		{ "listen",      1, 0, 'I' },
-#endif
 		{ "udp-port",    1, 0, 'p' },
 		{ "tcp-port",    1, 0, 'P' },
 		{ "drop-privs",  1, 0, 'u' },
@@ -314,18 +300,14 @@ int main(int argc, char *argv[])
 	size_t i;
 	fd_set rfds, wfds;
 	struct sigaction sig;
-#ifndef __FreeBSD__
 	struct ifreq ifreq;
-#endif
 	struct timeval tv_last;
 	struct timeval tv_now;
 	struct timeval tv_sleep;
 	my_socklen_t socklen;
 	union {
 		struct sockaddr_in sa;
-#ifdef CONFIG_ENABLE_IPV6
 		struct sockaddr_in6 sa6;
-#endif
 	} sockaddr;
 #ifdef HAVE_LIBCONFUSE
 	char path[256] = "";
@@ -341,7 +323,6 @@ int main(int argc, char *argv[])
 			break;
 
 		switch (c) {
-#ifdef CONFIG_ENABLE_IPV6
 		case '4':
 			g_family = AF_INET;
 			break;
@@ -349,7 +330,6 @@ int main(int argc, char *argv[])
 		case '6':
 			g_family = AF_INET6;
 			break;
-#endif
 		case 'h':
 			return usage(0);
 
@@ -389,21 +369,6 @@ int main(int argc, char *argv[])
 		g_tcp_port = g_udp_port;	/* don't override if it's already set */
 
 	logit(LOG_NOTICE, 0, PROGRAM_IDENT " starting");
-
-	if (g_daemon) {
-		logit(LOG_DEBUG, 0, "Daemonizing ...");
-		if (-1 == daemon(0, 0)) {
-			logit(LOG_ERR, errno, "Failed daemonizing");
-			return 1;
-		}
-	}
-
-	g_community = "public";
-	g_vendor = VENDOR;
-	g_description = "";
-	g_location = "";
-	g_contact = "";
-
 	g_timeout *= 100;
 
 	/* Store the starting time since we need it for MIB updates */
@@ -435,13 +400,11 @@ int main(int argc, char *argv[])
 		sockaddr.sa.sin_port = htons(g_udp_port);
 		sockaddr.sa.sin_addr = inaddr_any;
 		socklen = sizeof(sockaddr.sa);
-#ifdef CONFIG_ENABLE_IPV6
 	} else {
 		sockaddr.sa6.sin6_family = g_family;
 		sockaddr.sa6.sin6_port = htons(g_udp_port);
 		sockaddr.sa6.sin6_addr = in6addr_any;
 		socklen = sizeof(sockaddr.sa6);
-#endif
 	}
 	if (bind(g_udp_sockfd, (struct sockaddr *)&sockaddr, socklen) == -1) {
 		logit(LOG_ERR, errno, "could not bind UDP socket to port %d", g_udp_port);
@@ -486,13 +449,11 @@ int main(int argc, char *argv[])
 		sockaddr.sa.sin_port = htons(g_udp_port);
 		sockaddr.sa.sin_addr = inaddr_any;
 		socklen = sizeof(sockaddr.sa);
-#ifdef CONFIG_ENABLE_IPV6
 	} else {
 		sockaddr.sa6.sin6_family = g_family;
 		sockaddr.sa6.sin6_port = htons(g_udp_port);
 		sockaddr.sa6.sin6_addr = in6addr_any;
 		socklen = sizeof(sockaddr.sa6);
-#endif
 	}
 	if (bind(g_tcp_sockfd, (struct sockaddr *)&sockaddr, socklen) == -1) {
 		logit(LOG_ERR, errno, "could not bind TCP socket to port %d", g_tcp_port);
@@ -621,8 +582,6 @@ int main(int argc, char *argv[])
 
 	/* We were signaled, print a message and exit */
 	logit(LOG_NOTICE, 0, PROGRAM_IDENT " stopping");
-	if (g_syslog)
-		closelog();
 
 	return EXIT_OK;
 }

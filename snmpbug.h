@@ -18,17 +18,28 @@
 
 #include <errno.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <syslog.h>
 #include <signal.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "config.h"
-#include "compat.h"
 
 /*
  * Project dependent defines
  */
+
+#ifndef UNUSED
+#define UNUSED(x) x __attribute__((unused))
+#endif
+
+/* From The Practice of Programming, by Kernighan and Pike */
+#ifndef NELEMS
+#define NELEMS(array) (sizeof(array) / sizeof(array[0]))
+#endif
+
 
 #define EXIT_OK                                         0
 #define EXIT_ARGS                                       1
@@ -98,20 +109,6 @@
 
 #define PROGRAM_IDENT PACKAGE_NAME " v" PACKAGE_VERSION
 
-#ifndef CONFIG_ENABLE_IPV6
-#define my_sockaddr_t           struct sockaddr_in
-#define my_socklen_t            socklen_t
-#define my_sin_addr             sin_addr
-#define my_sin_port             sin_port
-#define my_sin_family           sin_family
-#define my_af_inet              AF_INET
-#define my_pf_inet              PF_INET
-#define my_in_addr_t            struct in_addr
-#define my_in_port_t            in_port_t
-#define my_inet_addrstrlen      INET_ADDRSTRLEN
-
-#else /* IPv6 */
-
 #define my_sockaddr_t           struct sockaddr_in6
 #define my_socklen_t            socklen_t
 #define my_sin_addr             sin6_addr
@@ -122,7 +119,6 @@
 #define my_in_addr_t            struct in6_addr
 #define my_in_port_t            in_port_t
 #define my_inet_addrstrlen      INET6_ADDRSTRLEN
-#endif/* CONFIG_ENABLE_IPV6 */
 
 
 /*
@@ -192,17 +188,10 @@ extern const struct in_addr inaddr_any;
 extern int       g_family;
 extern int       g_timeout;
 extern int       g_auth;
-extern int       g_daemon;
-extern int       g_syslog;
 extern int       g_level;
 extern volatile sig_atomic_t g_quit;
 
 extern char     *g_prognm;
-extern char     *g_community;
-extern char     *g_description;
-extern char     *g_vendor;
-extern char     *g_location;
-extern char     *g_contact;
 extern char     *g_bind_to_device;
 extern char     *g_user;
 
@@ -232,6 +221,15 @@ int	logit(int priority, int syserr, const char *fmt, ...);
 
 int	snmp_packet_complete(const client_t *client);
 int 	snmp(client_t *client);
+
+#ifndef HAVE_GETPROGNAME
+static inline char *getprogname(void)
+{
+	extern char *g_prognm;
+	return g_prognm;
+}
+#endif
+
 
 #endif /* SNMPBUG_H_ */
 

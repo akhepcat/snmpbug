@@ -18,9 +18,7 @@
 #include <sys/time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#ifdef HAVE_ALLOCA_H
 #include <alloca.h>
-#endif
 #include <limits.h>
 #include <syslog.h>
 #include <string.h>
@@ -133,12 +131,8 @@ int logit(int priority, int syserr, const char *fmt, ...)
 	if (syserr > 0)
 		i += snprintf(&buf[i], len - i, ": %s", strerror(syserr));
 
-	if (g_syslog)
-		syslog(priority, "%s", buf);
-	else {
-		i = fprintf(stdout, "%s\n", buf);
-		fflush(stdout);
-	}
+	i = fprintf(stdout, "%s\n", buf);
+	fflush(stdout);
 
 	return i;
 }

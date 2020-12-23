@@ -27,17 +27,10 @@ const struct in_addr inaddr_any = { INADDR_ANY };
 int       g_family  = AF_INET6;
 int       g_timeout = 1;
 int       g_auth    = 1;	/* always enable auth, for logging */
-int       g_daemon  = 0;	/* don't fork into background, for logging */
-int       g_syslog  = 0;
 int       g_level   = LOG_INFO;	/* to log that auth info */
 volatile sig_atomic_t g_quit = 0;
 
 char     *g_prognm;
-char     *g_community;
-char     *g_vendor;
-char     *g_description;
-char     *g_location;
-char     *g_contact;
 char     *g_bind_to_device;
 char     *g_user;
 
