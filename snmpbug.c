@@ -92,6 +92,12 @@ static void handle_udp_client(void)
 
 	/* Call the protocol handler which will prepare the response packet */
 	inet_ntop(my_af_inet, &sockaddr.my_sin_addr, straddr, sizeof(straddr));
+	if (strncmp(straddr,"::ffff:",7)==0) {	/* ipv4-in-ipv6 representation */
+		for(i=0; i < (strlen(straddr) - 7); i++) {
+			straddr[i] = straddr[(i+7)];  /* shift the IPv4 addr to the beginning of the string */
+		}
+		straddr[i]='\0';  /* set the new termination point */
+	}
 	if (snmp(&g_udp_client) == -1) {
 		logit(LOG_WARNING, errno, "%s %s:%d", req_msg, straddr, sockaddr.my_sin_port);
 		return;
@@ -149,6 +155,12 @@ static void handle_tcp_connect(void)
 		tmp_sockaddr.my_sin_addr = client->addr;
 		tmp_sockaddr.my_sin_port = client->port;
 		inet_ntop(my_af_inet, &tmp_sockaddr.my_sin_addr, straddr, sizeof(straddr));
+		if (strncmp(straddr,"::ffff:",7)==0) {	/* ipv4-in-ipv6 representation */
+			for(i=0; i < (strlen(straddr) - 7); i++) {
+				straddr[i] = straddr[(i+7)];  /* shift the IPv4 addr to the beginning of the string */
+			}
+			straddr[i]='\0';  /* set the new termination point */
+		}
 		logit(LOG_WARNING, 0, "Maximum number of %d clients reached, kicking out %s:%d",
 		      MAX_NR_CLIENTS, straddr, tmp_sockaddr.my_sin_port);
 		close(client->sockfd);
@@ -162,6 +174,12 @@ static void handle_tcp_connect(void)
 
 	/* Now fill out the client control structure values */
 	inet_ntop(my_af_inet, &sockaddr.my_sin_addr, straddr, sizeof(straddr));
+	if (strncmp(straddr,"::ffff:",7)==0) {	/* ipv4-in-ipv6 representation */
+		for(i=0; i < (strlen(straddr) - 7); i++) {
+			straddr[i] = straddr[(i+7)];  /* shift the IPv4 addr to the beginning of the string */
+		}
+		straddr[i]='\0';  /* set the new termination point */
+	}
 	logit(LOG_DEBUG, 0, "Connected TCP client %s:%d", straddr, sockaddr.my_sin_port);
 	client->timestamp = time(NULL);
 	client->sockfd = rv;
@@ -183,6 +201,12 @@ static void handle_tcp_client_write(client_t *client)
 	sockaddr.my_sin_port = client->port;
 	rv = send(client->sockfd, client->packet, client->size, 0);
 	inet_ntop(my_af_inet, &sockaddr.my_sin_addr, straddr, sizeof(straddr));
+	if (strncmp(straddr,"::ffff:",7)==0) {	/* ipv4-in-ipv6 representation */
+		for(i=0; i < (strlen(straddr) - 7); i++) {
+			straddr[i] = straddr[(i+7)];  /* shift the IPv4 addr to the beginning of the string */
+		}
+		straddr[i]='\0';  /* set the new termination point */
+	}
 	if (rv == -1) {
 		logit(LOG_WARNING, errno, "%s %s:%d", msg, straddr, sockaddr.my_sin_port);
 		close(client->sockfd);
@@ -214,6 +238,12 @@ static void handle_tcp_client_read(client_t *client)
 	sockaddr.my_sin_port = client->port;
 	rv = read(client->sockfd, client->packet + client->size, sizeof(client->packet) - client->size);
 	inet_ntop(my_af_inet, &sockaddr.my_sin_addr, straddr, sizeof(straddr));
+	if (strncmp(straddr,"::ffff:",7)==0) {	/* ipv4-in-ipv6 representation */
+		for(i=0; i < (strlen(straddr) - 7); i++) {
+			straddr[i] = straddr[(i+7)];  /* shift the IPv4 addr to the beginning of the string */
+		}
+		straddr[i]='\0';  /* set the new termination point */
+	}
 	if (rv == -1) {
 		logit(LOG_WARNING, errno, "%s %s:%d", req_msg, straddr, sockaddr.my_sin_port);
 		close(client->sockfd);
